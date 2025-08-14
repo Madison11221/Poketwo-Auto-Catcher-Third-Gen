@@ -153,9 +153,8 @@ Open the folder, right-click, and select **Command Prompt**.
 7. **Clone the Repository**  
 Paste this in Command Prompt:  
 ```bash
-git clone (repository link)
+git clone (https://github.com/Madison11221/Poketwo-Auto-Catcher-Third-Gen)
 
-git clone (repository link)
 
 *Note:* You may need to install Git first if you don't already have it: https://git-scm.com/downloads
 
