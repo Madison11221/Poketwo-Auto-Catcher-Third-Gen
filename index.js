@@ -163,6 +163,7 @@ client.on('messageCreate', async message => {
                             if(!pokedex[pokemonName]) {
                                 pokedex[pokemonName] = { entries: [{ name: pokemonName }], total: 1 };
                             } else {
+                                if (!Array.isArray(pokedex[pokemonName].entries)) { pokedex[pokemonName].entries = []; }
                                 pokedex[pokemonName].entries.push({ name: pokemonName });
                                 pokedex[pokemonName].total += 1;
                             }
@@ -213,6 +214,7 @@ client.on('messageCreate', async message => {
                                 if(!pokedex[name]) {
                                     pokedex[name] = { entries: [{ name }], total: 1 };
                                 } else {
+                                    if (!Array.isArray(pokedex[name].entries)) { pokedex[name].entries = []; }
                                     pokedex[name].entries.push({ name });
                                     pokedex[name].total += 1;
                                 }
