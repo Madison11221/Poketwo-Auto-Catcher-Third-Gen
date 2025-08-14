@@ -1,6 +1,8 @@
 {
   "ocrSpaceApiKey" : "YOUR KEY HERE", 
   "spamChannelID" : "YOUR SPAM CHANNEL ID", 
+  "spawnChannelID" : "YOUR SPAWN CHANNEL ID", 
+  "incenseChannelID" : "YOUR INCENSE CHANNEL ID", 
   "logChannelID" : "YOUR LOG CHANNEL ID", 
   "errorChannelID" : "YOUR ERROR OR LOG 2 CHANNEL", 
   "OwnerID" : "YOUR DISCORD USER ID",

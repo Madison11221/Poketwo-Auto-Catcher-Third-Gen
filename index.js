@@ -254,7 +254,114 @@ client.on('messageCreate', async message => {
             }
         }
     }
-})
+});
+
+//------------------------- INCENSE CHANNEL HANDLER -------------------------//
+client.on('messageCreate', async message => {
+    if (message.channel.id !== config.incenseChannelID) return;
+
+    const Pokebots = ["696161886734909481", "874910942490677270", "1254602968938844171"]; // Sierra, Pokename, P2A Premium
+    if (!Pokebots.includes(message.author.id)) return;
+
+    // ---------- P2A Premium plain text messages ----------
+    if (message.author.id === "1254602968938844171") {
+        const match = message.content.match(/^([A-Za-z]+):/i);
+        if (match) {
+            const pokemonName = match[1];
+            const delay = Math.floor(Math.random() * 5000) + 3000; // 3-8 seconds
+            setTimeout(async () => {
+                await message.channel.send(`<@716390085896962058> c ${pokemonName}`);
+
+                // Update pokedex.json
+                if (!pokedex[pokemonName]) {
+                    pokedex[pokemonName] = { entries: [{ name: pokemonName }], total: 1 };
+                } else {
+                    if (!Array.isArray(pokedex[pokemonName].entries)) pokedex[pokemonName].entries = [];
+                    pokedex[pokemonName].entries.push({ name: pokemonName });
+                    pokedex[pokemonName].total += 1;
+                }
+                fs.writeFileSync("pokedex.json", JSON.stringify(pokedex, null, 2));
+
+                // Log to log channel
+                const logchannel = client.channels.cache.get(config.logChannelID);
+                if (logchannel) {
+                    let rarity;
+                    try { rarity = await checkRarity(pokemonName); } catch { rarity = "Not Found in Database"; }
+                    logchannel.send("-# [" + message.guild.name + "/#" + message.channel.name + "] " + "**__" + pokemonName + "__** " + "Rarity **" + rarity + "** | Total: " + pokedex[pokemonName].total).catch(console.error);
+
+                    const specialRarities = ["Shiny", "Rare", "Legendary", "Ultra Beast", "Mythical"];
+                    if (specialRarities.includes(rarity)) {
+                        logchannel.send(`# WOW YOU CAUGHT A ${rarity.toUpperCase()} POKEMON WAY TO GO!!!!`);
+                    }
+                }
+            }, delay);
+        }
+        return;
+    }
+
+    // ---------- Sierra / Pokename OCR / Embed handling ----------
+    let preferredURL = null;
+    message.embeds.forEach((e) => {
+        if (e.image) {
+            const imageURL = e.image.url;
+            if (imageURL.includes("prediction.png")) preferredURL = imageURL;
+            else if (imageURL.includes("embed.png") && !preferredURL) preferredURL = imageURL;
+        }
+    });
+
+    if (!preferredURL) return;
+
+    async function main() {
+        try {
+            const res1 = await ocrSpace(preferredURL, { apiKey: `${config.ocrSpaceApiKey}` });
+            const name1 = res1.ParsedResults[0].ParsedText.split('\r')[0];
+            const name5 = name1.replace(/Q/g, 'R');
+            const name = findOutput(name5);
+
+            const delay = Math.floor(Math.random() * 5000) + 3000; // 3-8 seconds
+            setTimeout(async () => {
+                await message.channel.send(`<@716390085896962058> c ${name}`).catch(console.error);
+
+                // Update pokedex.json
+                if(!pokedex[name]) {
+                    pokedex[name] = { entries: [{ name }], total: 1 };
+                } else {
+                    if (!Array.isArray(pokedex[name].entries)) pokedex[name].entries = [];
+                    pokedex[name].entries.push({ name });
+                    pokedex[name].total += 1;
+                }
+                fs.writeFileSync("pokedex.json", JSON.stringify(pokedex, null, 2));
+
+                const filter = (msg) => msg.author.id === "716390085896962058";
+                const collector = new Discord.MessageCollector(message.channel, filter, { max: 1, time: 13000 });
+
+                collector.on('collect', async (collected) => {
+                    if (collected.content.includes("Congratulations")) {
+                        const name2 = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+                        let rarity;
+                        try { rarity = await checkRarity(name2); } catch { rarity = "Not Found in Database"; }
+
+                        const logchannel = client.channels.cache.get(config.logChannelID);
+                        if (logchannel) {
+                            logchannel.send("[" + collected.guild.name + "/#" + collected.channel.name + "] " + "**__" + name2 + "__** " + "Rarity " + rarity + " | Total: " + pokedex[name2].total).catch(console.error);
+
+                            const specialRarities = ["Shiny", "Rare", "Legendary", "Ultra Beast", "Mythical"];
+                            if(specialRarities.includes(rarity)) {
+                                logchannel.send(`# WOW YOU CAUGHT A ${rarity.toUpperCase()} POKEMON WAY TO GO!!!!`);
+                            }
+                        }
+                        collector.stop();
+                    }
+                });
+            }, delay);
+        } catch (error) {
+            console.error(error);
+            const channel = client.channels.cache.get(config.errorChannelID);
+            if(channel) channel.send(error);
+        }
+    }
+    main();
+}); // <-- closes incense messageCreate
 
 //------------------------- DUPLICATES MECHANIC (LIVE READ) -------------------------//
 client.on('messageCreate', async message => {
