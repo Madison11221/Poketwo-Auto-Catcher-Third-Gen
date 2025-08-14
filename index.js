@@ -363,6 +363,53 @@ client.on('messageCreate', async message => {
     main();
 }); // <-- closes incense messageCreate
 
+// ------------------------- POKETWO EVOLUTION TRACKER -------------------------//
+client.on('messageCreate', async message => {
+    if (message.channel.id !== config.spamChannelID) return; // Only spam channel
+    if (message.author.id !== "716390085896962058") return; // Only Poketwo bot
+    if (message.embeds.length === 0) return;
+
+    const embed = message.embeds[0];
+
+    // Check that this is an evolution embed
+    if (!embed.title?.toLowerCase().includes("congratulations")) return;
+    if (!embed.description || !embed.fields?.length) return;
+
+    // Extract old Pokemon and level from description
+    const descMatch = embed.description.match(/Your (.+) is now level (\d+)!/i);
+    if (!descMatch) return;
+    const oldPokemon = descMatch[1];
+    const level = parseInt(descMatch[2]);
+
+    // Extract new Pokemon from field value
+    const fieldValue = embed.fields[0].value; // "Your Zubat has turned into a Golbat!"
+    const fieldMatch = fieldValue.match(/has turned into a (.+)!/i);
+    if (!fieldMatch) return;
+    const newPokemon = fieldMatch[1];
+
+    // Ensure both exist in pokedex
+    if (!pokedex[oldPokemon]) pokedex[oldPokemon] = { entries: [], total: 0 };
+    if (!pokedex[newPokemon]) pokedex[newPokemon] = { entries: [], total: 0 };
+
+    // Update totals
+    pokedex[oldPokemon].total = Math.max(0, (pokedex[oldPokemon].total || 1) - 1);
+    pokedex[newPokemon].total += 1;
+    pokedex[newPokemon].entries.push({ name: newPokemon });
+
+    // Save pokedex
+    fs.writeFileSync("pokedex.json", JSON.stringify(pokedex, null, 2));
+
+    // Log to Discord
+    const logchannel = client.channels.cache.get(config.logChannelID);
+    if (logchannel) {
+        const oldTotal = pokedex[oldPokemon].total;
+        const newTotal = pokedex[newPokemon].total;
+
+        const logMessage = `-# **__${oldPokemon}__** (level ${level}) has evolved to **__${newPokemon}__** | Totals - ${oldPokemon}: ${oldTotal}, ${newPokemon}: ${newTotal}`;
+        logchannel.send(logMessage).catch(console.error);
+    }
+});
+
 //------------------------- DUPLICATES MECHANIC (LIVE READ) -------------------------//
 client.on('messageCreate', async message => {
     if (message.content.toLowerCase() === "brap duplicates" && message.channel.id === config.errorChannelID) {
