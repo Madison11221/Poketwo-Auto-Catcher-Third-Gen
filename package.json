@@ -1,5 +1,5 @@
 {
-  "name": "Poketwo-Autocatcher",
+  "name": "poketwo-autocatcher",
   "version": "1.3.0",
   "description": "bot to help users with catching pokemons",
   "main": "index.js",
@@ -11,9 +11,18 @@
   "author": "akshatop",
   "license": "MIT",
   "dependencies": {
+    "discord.js-self": "^12.0.4",
     "discord.js-selfbot-v13": "^2.14.9",
-    "express": "^4.18.2",
-    "ocr-space-api-wrapper": "^2.3.0",
+    "express": "^4.21.2",
+    "ocr-space-api-wrapper": "^2.4.1",
     "pokehint": "^1.2.9"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AkshatOP/Poketwo-Autocatcher.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AkshatOP/Poketwo-Autocatcher/issues"
+  },
+  "homepage": "https://github.com/AkshatOP/Poketwo-Autocatcher#readme"
 }
