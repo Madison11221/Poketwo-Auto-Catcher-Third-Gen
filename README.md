@@ -152,10 +152,7 @@ Open the folder, right-click, and select **Command Prompt**.
 
 7. **Clone the Repository**  
 Paste this in Command Prompt:  
-```bash
 git clone (https://github.com/Madison11221/Poketwo-Auto-Catcher-Third-Gen)
-
-
 *Note:* You may need to install Git first if you don't already have it: https://git-scm.com/downloads
 
 8. **Configure the Bot**  
@@ -249,8 +246,6 @@ Do **not** remove `+ result +` (it contains the random numbers to avoid detectio
   - Change `"all good bud!"` to customize the message when no duplicates are found.  
   - Adjust the default threshold (`>4`) in:  
 
-
-if (pokedexData[poke].total >= 4) {
-
+if (pokedexData[poke].total >= 4)
 to set how many duplicates trigger the alert.
 
